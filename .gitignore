@@ -1,0 +1,22 @@
+# Secrets
+.env
+.env.local
+.env.*.local
+
+# Node
+node_modules/
+npm-debug.log*
+
+# Terraform
+infra/.terraform/
+infra/*.tfstate
+infra/*.tfstate.*
+infra/*.tfstate.backup
+infra/terraform.tfvars
+infra/tfplan
+infra/lambda_function.zip
+infra/crash.log
+infra/.terraform.tfstate.lock.info
+
+# macOS
+.DS_Store

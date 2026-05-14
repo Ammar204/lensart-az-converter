@@ -1,0 +1,16 @@
+{
+  "name": "lensart-converter-lambda",
+  "version": "1.0.0",
+  "description": "Lambda that triggers ECS Fargate task when a USDZ is uploaded to S3",
+  "main": "index.js",
+  "scripts": {
+    "package": "zip -r function.zip index.js node_modules package.json",
+    "deploy": "aws lambda update-function-code --function-name lensart-converter-trigger --zip-file fileb://function.zip"
+  },
+  "dependencies": {
+    "@aws-sdk/client-ecs": "^3.600.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

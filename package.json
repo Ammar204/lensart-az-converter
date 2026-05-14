@@ -1,0 +1,22 @@
+{
+  "name": "lensart-converter",
+  "version": "1.0.0",
+  "description": "USDZ → GLB converter service hosted on AWS ECR/ECS Fargate",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev:local": "node --env-file=.env.local src/index.js",
+    "test": "node --experimental-vm-modules node_modules/.bin/jest"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.600.0",
+    "@aws-sdk/lib-storage": "^3.600.0",
+    "axios": "^1.7.2"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
