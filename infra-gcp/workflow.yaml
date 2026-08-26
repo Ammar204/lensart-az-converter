@@ -1,0 +1,40 @@
+# Dispatcher: GCS finalized event → Cloud Run Job execution.
+# Mirrors lambda/index.js's runEcsTask — the object key is passed as a container
+# env override exactly as S3_KEY is on AWS.
+main:
+  params: [event]
+  steps:
+    - init:
+        assign:
+          - bucket: $${event.data.bucket}
+          - objectKey: $${event.data.name}
+
+    # Eventarc cannot filter by prefix, and the job writes converted/*.glb back
+    # into the same bucket. Without this guard each conversion would trigger
+    # another one, forever.
+    - filter:
+        switch:
+          - condition: $${text.match_regex(objectKey, "^${usdz_prefix}/scan_[0-9a-fA-F-]{36}[.]usdz$")}
+            next: run_job
+        next: skipped
+
+    - run_job:
+        call: googleapis.run.v2.projects.locations.jobs.run
+        args:
+          name: $${"projects/${project_id}/locations/${region}/jobs/${job_name}"}
+          body:
+            overrides:
+              containerOverrides:
+                - env:
+                    - name: GCS_BUCKET
+                      value: $${bucket}
+                    - name: GCS_KEY
+                      value: $${objectKey}
+        result: execution
+        next: done
+
+    - done:
+        return: $${execution.name}
+
+    - skipped:
+        return: '$${"skipped " + objectKey}'
