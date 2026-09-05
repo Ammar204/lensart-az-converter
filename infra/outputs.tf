@@ -22,3 +22,35 @@ output "lambda_function_arn" {
   description = "Lambda trigger function ARN"
   value       = aws_lambda_function.converter_trigger.arn
 }
+
+output "s3_bucket_name" {
+  description = "Asset bucket name"
+  value       = aws_s3_bucket.lensart.id
+}
+
+output "acm_certificate_arn" {
+  description = "The cdn.lensart.app certificate"
+  value       = aws_acm_certificate.cdn.arn
+}
+
+output "acm_validation_records" {
+  description = "Add these CNAME records at Namecheap to issue the certificate"
+  value = [
+    for o in aws_acm_certificate.cdn.domain_validation_options : {
+      name  = o.resource_record_name
+      type  = o.resource_record_type
+      value = o.resource_record_value
+    }
+  ]
+}
+
+output "backend_access_key_id" {
+  description = "AWS_ACCESS_KEY_ID for the NestJS backend"
+  value       = aws_iam_access_key.backend.id
+}
+
+output "backend_secret_access_key" {
+  description = "AWS_SECRET_ACCESS_KEY for the NestJS backend"
+  value       = aws_iam_access_key.backend.secret
+  sensitive   = true
+}

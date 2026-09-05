@@ -1,13 +1,19 @@
 variable "aws_region" {
   description = "AWS region to deploy into"
   type        = string
-  default     = "us-east-1"
+  default     = "ap-south-1"
 }
 
 variable "s3_bucket_name" {
-  description = "Name of the existing S3 bucket (lensart-files)"
+  description = "Name of the S3 bucket holding all assets"
   type        = string
-  default     = "lensart-files"
+  default     = "lensart-files-prod"
+}
+
+variable "cdn_domain_name" {
+  description = "Custom domain served by CloudFront"
+  type        = string
+  default     = "cdn.lensart.app"
 }
 
 variable "s3_usdz_prefix" {
@@ -59,13 +65,19 @@ variable "ecs_task_memory" {
 }
 
 variable "subnet_ids" {
-  description = "List of subnet IDs for the ECS task network"
+  description = "Subnets for the ECS task network (default VPC, ap-south-1)"
   type        = list(string)
+  default = [
+    "subnet-0e72073f2f8f3aa7c",
+    "subnet-0bca681d047876f0d",
+    "subnet-0d9db6addf4ff2029",
+  ]
 }
 
 variable "security_group_ids" {
-  description = "List of security group IDs for the ECS task"
+  description = "Security groups for the ECS task"
   type        = list(string)
+  default     = ["sg-0ab6b8a2ad65767f3"]
 }
 
 variable "assign_public_ip" {
@@ -75,8 +87,9 @@ variable "assign_public_ip" {
 }
 
 variable "webhook_url" {
-  description = "Backend webhook URL called when conversion finishes"
+  description = "Full backend webhook endpoint, used verbatim — nothing is appended"
   type        = string
+  default     = "https://api.lensart.app/webhook/scan-uploaded"
 }
 
 variable "webhook_secret" {

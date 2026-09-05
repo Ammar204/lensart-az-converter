@@ -17,11 +17,11 @@ resource "aws_ecr_lifecycle_policy" "converter" {
   policy = jsonencode({
     rules = [{
       rulePriority = 1
-      description  = "Keep last 10 images"
+      description  = "Keep last 3 images"
       selection = {
         tagStatus   = "any"
         countType   = "imageCountMoreThan"
-        countNumber = 10
+        countNumber = 3
       }
       action = { type = "expire" }
     }]
@@ -37,7 +37,7 @@ resource "aws_ecs_cluster" "main" {
 
   setting {
     name  = "containerInsights"
-    value = "enabled"
+    value = "disabled"
   }
 }
 
@@ -80,10 +80,6 @@ resource "aws_iam_role" "ecs_task" {
   })
 }
 
-data "aws_s3_bucket" "lensart" {
-  bucket = var.s3_bucket_name
-}
-
 resource "aws_iam_role_policy" "ecs_task_s3" {
   name = "s3-read-write"
   role = aws_iam_role.ecs_task.id
@@ -94,12 +90,12 @@ resource "aws_iam_role_policy" "ecs_task_s3" {
       {
         Effect   = "Allow"
         Action   = ["s3:GetObject"]
-        Resource = "${data.aws_s3_bucket.lensart.arn}/${var.s3_usdz_prefix}/*"
+        Resource = "${aws_s3_bucket.lensart.arn}/${var.s3_usdz_prefix}/*"
       },
       {
         Effect   = "Allow"
         Action   = ["s3:PutObject", "s3:PutObjectAcl"]
-        Resource = "${data.aws_s3_bucket.lensart.arn}/${var.s3_output_prefix}/*"
+        Resource = "${aws_s3_bucket.lensart.arn}/${var.s3_output_prefix}/*"
       }
     ]
   })
@@ -246,7 +242,7 @@ resource "aws_lambda_permission" "allow_s3" {
   action        = "lambda:InvokeFunction"
   function_name = aws_lambda_function.converter_trigger.function_name
   principal     = "s3.amazonaws.com"
-  source_arn    = data.aws_s3_bucket.lensart.arn
+  source_arn    = aws_s3_bucket.lensart.arn
 }
 
 resource "aws_s3_bucket_notification" "usdz_upload" {
