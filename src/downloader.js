@@ -1,39 +1,34 @@
 'use strict';
 
-const { Storage } = require('@google-cloud/storage');
+const { S3Client, GetObjectCommand } = require('@aws-sdk/client-s3');
 const fs = require('fs');
 const path = require('path');
 const { pipeline } = require('stream/promises');
 
 /**
- * Downloads a Cloud Storage object to a local temp file.
- *
- * Streams straight to disk rather than buffering — a LiDAR USDZ can be tens of
- * MB and Cloud Run's /tmp is an in-memory tmpfs that counts against the task's
- * memory limit.
- *
- * @param {Storage} storage
+ * Downloads an S3 object to a local temp file.
+ * @param {S3Client} s3
  * @param {string} bucket
  * @param {string} key   e.g. "models/scan_<uuid>.usdz"
  * @param {string} destDir  local directory to write the file into
  * @returns {Promise<string>}  absolute path to the downloaded file
  */
-async function downloadFromGcs(storage, bucket, key, destDir) {
+async function downloadFromS3(s3, bucket, key, destDir) {
   const filename = path.basename(key);
   const destPath = path.join(destDir, filename);
 
-  console.log(`[downloader] Downloading gs://${bucket}/${key} → ${destPath}`);
+  console.log(`[downloader] Downloading s3://${bucket}/${key} → ${destPath}`);
 
-  await pipeline(
-    storage.bucket(bucket).file(key).createReadStream(),
-    fs.createWriteStream(destPath),
+  const { Body } = await s3.send(
+    new GetObjectCommand({ Bucket: bucket, Key: key }),
   );
 
-  const { size } = fs.statSync(destPath);
-  if (size === 0) throw new Error(`Downloaded object gs://${bucket}/${key} is empty`);
+  if (!Body) throw new Error('S3 GetObject returned an empty body');
 
-  console.log(`[downloader] Download complete (${destPath}, ${size} bytes)`);
+  await pipeline(Body, fs.createWriteStream(destPath));
+
+  console.log(`[downloader] Download complete (${destPath})`);
   return destPath;
 }
 
-module.exports = { downloadFromGcs };
+module.exports = { downloadFromS3 };
