@@ -54,3 +54,13 @@ output "backend_secret_access_key" {
   value       = aws_iam_access_key.backend.secret
   sensitive   = true
 }
+
+output "cloudfront_domain_name" {
+  description = "CNAME target for the cdn record at Namecheap"
+  value       = aws_cloudfront_distribution.assets.domain_name
+}
+
+output "cloudfront_distribution_id" {
+  description = "Distribution id, for cache invalidations"
+  value       = aws_cloudfront_distribution.assets.id
+}
