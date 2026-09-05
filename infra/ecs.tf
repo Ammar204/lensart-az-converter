@@ -246,7 +246,7 @@ resource "aws_lambda_permission" "allow_s3" {
 }
 
 resource "aws_s3_bucket_notification" "usdz_upload" {
-  bucket = var.s3_bucket_name
+  bucket = aws_s3_bucket.lensart.id
 
   lambda_function {
     lambda_function_arn = aws_lambda_function.converter_trigger.arn
