@@ -9,6 +9,11 @@ resource "aws_cloudfront_origin_access_control" "lensart" {
 # The landing page renders GLBs with <model-viewer>, which fetches cross-origin.
 # Without these headers the models fail to load with no server-side error at all.
 # Putting CORS here rather than on the bucket keeps Origin out of the cache key.
+#
+# There is no S3 bucket CORS config, which is fine only because that GLB fetch
+# is a simple request and never preflights. A future request with a
+# non-safelisted header will preflight; CloudFront forwards OPTIONS to S3,
+# which has no CORS config and will 403 it.
 resource "aws_cloudfront_response_headers_policy" "assets_cors" {
   name = "lensart-assets-cors"
 
@@ -31,9 +36,9 @@ resource "aws_cloudfront_response_headers_policy" "assets_cors" {
 }
 
 resource "aws_cloudfront_distribution" "assets" {
-  enabled     = true
-  comment     = "LensArt assets"
-  aliases     = [var.cdn_domain_name]
+  enabled = true
+  comment = "LensArt assets"
+  aliases = [var.cdn_domain_name]
 
   # PriceClass_100 is North America and Europe only and would miss the entire
   # user base. _200 adds India, the Middle East, Africa and SE Asia.

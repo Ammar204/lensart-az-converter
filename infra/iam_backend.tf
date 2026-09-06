@@ -17,8 +17,8 @@ resource "aws_iam_user_policy" "backend_s3" {
       Effect = "Allow"
       Action = ["s3:PutObject"]
       Resource = [
-        "${aws_s3_bucket.lensart.arn}/models/*",
-        "${aws_s3_bucket.lensart.arn}/catalog-scan-thumbnails/*",
+        "${aws_s3_bucket.lensart.arn}/${var.s3_usdz_prefix}/*",
+        "${aws_s3_bucket.lensart.arn}/${var.s3_thumbnail_prefix}/*",
       ]
     }]
   })

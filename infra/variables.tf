@@ -28,6 +28,12 @@ variable "s3_output_prefix" {
   default     = "converted"
 }
 
+variable "s3_thumbnail_prefix" {
+  description = "S3 prefix where catalog and scan thumbnails are written"
+  type        = string
+  default     = "catalog-scan-thumbnails"
+}
+
 variable "ecr_repo_name" {
   description = "Name of the ECR repository"
   type        = string

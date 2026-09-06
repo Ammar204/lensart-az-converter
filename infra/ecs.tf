@@ -94,7 +94,7 @@ resource "aws_iam_role_policy" "ecs_task_s3" {
       },
       {
         Effect   = "Allow"
-        Action   = ["s3:PutObject", "s3:PutObjectAcl"]
+        Action   = ["s3:PutObject", "s3:AbortMultipartUpload"]
         Resource = "${aws_s3_bucket.lensart.arn}/${var.s3_output_prefix}/*"
       }
     ]
@@ -131,11 +131,11 @@ resource "aws_ecs_task_definition" "converter" {
 
     # Default env vars — Lambda overrides S3_KEY and S3_BUCKET per invocation
     environment = [
-      { name = "AWS_REGION",      value = var.aws_region },
-      { name = "S3_BUCKET",       value = var.s3_bucket_name },
-      { name = "OUTPUT_PREFIX",   value = var.s3_output_prefix },
-      { name = "WEBHOOK_URL",     value = var.webhook_url },
-      { name = "WEBHOOK_SECRET",  value = var.webhook_secret },
+      { name = "AWS_REGION", value = var.aws_region },
+      { name = "S3_BUCKET", value = var.s3_bucket_name },
+      { name = "OUTPUT_PREFIX", value = var.s3_output_prefix },
+      { name = "WEBHOOK_URL", value = var.webhook_url },
+      { name = "WEBHOOK_SECRET", value = var.webhook_secret },
     ]
 
     logConfiguration = {
@@ -185,8 +185,8 @@ resource "aws_iam_role_policy" "lambda_ecs" {
       },
       {
         # Lambda must be able to pass the task role to ECS
-        Effect   = "Allow"
-        Action   = ["iam:PassRole"]
+        Effect = "Allow"
+        Action = ["iam:PassRole"]
         Resource = [
           aws_iam_role.ecs_execution.arn,
           aws_iam_role.ecs_task.arn,

@@ -13,7 +13,7 @@ const {
   ECS_SUBNET_IDS = '',
   ECS_SECURITY_GROUP_IDS = '',
   ECS_ASSIGN_PUBLIC_IP = 'ENABLED',
-  S3_BUCKET = 'lensart-files',
+  S3_BUCKET,
   OUTPUT_PREFIX = 'converted',
   WEBHOOK_URL,
   WEBHOOK_SECRET = '',

@@ -29,6 +29,9 @@ async function uploadToS3(s3, bucket, outputPrefix, filePath) {
       Key: s3Key,
       Body: fs.createReadStream(filePath),
       ContentType: contentType,
+      // Keys are deterministic and reused (converted/scan_<id>.glb), so a
+      // re-converted model must not sit behind CloudFront's 24h default TTL.
+      CacheControl: 'public, max-age=300',
     },
   });
 
